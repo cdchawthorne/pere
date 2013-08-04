@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+lua /usr/lib/pere/pere.lua "$@"
