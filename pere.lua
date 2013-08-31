@@ -58,14 +58,6 @@ local function write_backgrounds(backgrounds, mode)
   backgrounds_file:close()
 end
 
-local function set_background(background)
-  assert(not background:find("'"))
-  os.execute("feh --bg-center '" .. background .. "'")
-  local current_background_file = io.open(CURRENT_BACKGROUND_FILE, "w")
-  current_background_file:write(background, '\n')
-  current_background_file:close()
-end
-
 local function get_num_backgrounds()
   local num_backgrounds = 0
   if not os.execute('test -r ' .. BACKGROUNDS_FILE) then
@@ -78,9 +70,9 @@ local function get_num_backgrounds()
   return num_backgrounds
 end
 
-local function format_args(lst)
+local function format_backgrounds(...)
   local result = {}
-  for _,v in ipairs(lst) do
+  for _,v in ipairs({...}) do
     result[absolute_path(v)] = true
   end
   return result
@@ -101,7 +93,21 @@ local function check_user_pere_dir()
   end
 end
 
+local function args_list_wrapper(fn)
+  return function(...)
+    return fn(format_backgrounds(...))
+  end
+end
+
 -- Methods
+
+local function set_background(background)
+  assert(not background:find("'"))
+  os.execute("feh --bg-center '" .. background .. "'")
+  local current_background_file = io.open(CURRENT_BACKGROUND_FILE, "w")
+  current_background_file:write(background, '\n')
+  current_background_file:close()
+end
 
 local function add_backgrounds(new_backgrounds)
   local backgrounds = get_backgrounds()
@@ -140,7 +146,7 @@ local function list_backgrounds()
 end
 
 
-local function write_current_background()
+local function print_current_background()
   local current_background_file = io.open(CURRENT_BACKGROUND_FILE)
   if not current_background_file then
     io.stderr:write([[ERROR: current background file not initialized;
@@ -194,28 +200,30 @@ end
 
 local function main()
   check_user_pere_dir()
-  methods = {add = add_backgrounds,
-             remove = remove_backgrounds,
+  methods = {add = args_list_wrapper(add_backgrounds),
+             remove = args_list_wrapper(remove_backgrounds),
              list = list_backgrounds,
-             current = write_current_background,
-             check = query_backgrounds,
+             current = print_current_background,
+             check = args_list_wrapper(query_backgrounds),
              random = set_random_background,
+             set = set_background,
             }
 
   if #arg == 0 then
     io.stderr:write([[usage:
-                      pere add
-                      pere remove
+                      pere add BACKGROUND_FILES
+                      pere remove BACKGROUND_FILES
                       pere list
                       pere current
-                      pere check
-                      pere random]], '\n')
+                      pere check BACKGROUND_FILES
+                      pere random
+                      pere set BACKGROUND_FILE]], '\n')
     os.exit(1)
   end
 
   local method_name = arg[1]
   table.remove(arg, 1)
-  methods[method_name](format_args(arg))
+  methods[method_name](unpack(arg))
 end
 
 main()
