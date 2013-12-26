@@ -103,7 +103,7 @@ end
 
 local function set_background(background)
   assert(not background:find("'"))
-  os.execute("feh --bg-center '" .. background .. "'")
+  os.execute("feh --bg-max '" .. background .. "'")
   local current_background_file = io.open(CURRENT_BACKGROUND_FILE, "w")
   current_background_file:write(background, '\n')
   current_background_file:close()
