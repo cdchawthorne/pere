@@ -5,13 +5,17 @@ if [[ $(whoami) != root ]]; then
     exit 1
 fi
 
-pere_dir=/usr/lib/pere
+pere_dir=/usr/local/lib/pere
 pere_src_dir=$(dirname "$(realpath "$0")")
-bin_dir=/usr/bin
+bin_dir=/usr/local/bin
 
 if [[ ! -d ${pere_dir} ]]; then
     mkdir "${pere_dir}"
+    chmod a+rx "${pere_dir}"
 fi
 
 cp "${pere_src_dir}/pere" "${bin_dir}"
+chmod a+rx "${bin_dir}/pere"
+
 cp "${pere_src_dir}/pere.lua" "${pere_dir}"
+chmod a+rx "${pere_dir}/pere.lua"
