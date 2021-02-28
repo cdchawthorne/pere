@@ -173,7 +173,7 @@ local function query_backgrounds(backgrounds_to_query)
   end
 
   if next(backgrounds_to_add) ~= nil then
-    add_backgrounds(backgrounds_to_query)
+    add_backgrounds(backgrounds_to_add)
   end
 end
 
@@ -223,7 +223,7 @@ local function main()
 
   local method_name = arg[1]
   table.remove(arg, 1)
-  methods[method_name](unpack(arg))
+  methods[method_name](table.unpack(arg))
 end
 
 main()
